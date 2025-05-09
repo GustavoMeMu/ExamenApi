@@ -9,7 +9,7 @@ const router = Router();
 router.get("/pilotos", consultaPilotos );
 router.get('/piloto/:nombre',consultaPiloto);
 router.post("/agregarPiloto", authMiddleware, agregarPiloto);
-router.put("/editarPiloto/:nombre", authMiddleware, editarPiloto);
+router.put("/editarPiloto/:nombre", editarPiloto);
 router.delete("/eliminarPiloto/:nombre", authMiddleware, eliminarPiloto);
 // aqui van las rutas de las pistas
 router.get("/pistas",consultaPistas);

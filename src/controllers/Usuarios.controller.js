@@ -41,5 +41,55 @@ const iniciar_sesion = async (recibido, respuesta) => {
         respuesta.status(500).json({ "msj": error.msj })
     }
 }
+const consultaUsuarios = async (recibido, respuesta) => {
+    try {
+        const usuarioss = await Usuarios.find();
+        respuesta.json(usuarioss);
+    } catch (error) {
+        respuesta.status(500).json({ "Error paps": error.message });
+    }
+};
+const consultaUsuario = async (req, res) => {
+    try {
+        const { usuario } = req.params;
+        const resultado = await Usuarios.findOne({ usuario });
 
-export { registro_usuarios, iniciar_sesion }
+        if (!resultado) {
+            return res.status(404).json({ estatus: "error", msj: "Usuario no encontrado" });
+        }
+
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ estatus: "error", msj: error.message });
+    }
+};
+
+const editarUsuarios = async (recibido, respuesta) => {
+    try {
+        const nombreUsuario = recibido.params.usuario;
+        const nuevosDatos = recibido.body;
+
+        if (nuevosDatos.password) {
+            nuevosDatos.password = await bcrypt.hash(nuevosDatos.password, 10);
+        }
+
+        const usuarioActualizado = await Usuarios.findOneAndUpdate(
+            { usuario: nombreUsuario },
+            nuevosDatos,
+            { new: true }
+        );
+
+        if (!usuarioActualizado) {
+            return respuesta.status(404).json({ msj: `El usuario '${nombreUsuario}' no fue encontrado` });
+        }
+
+        respuesta.json({ msj: "Usuario actualizado correctamente", usuarioActualizado });
+
+    } catch (error) {
+        respuesta.status(500).json({ Error: error.message });
+    }
+};
+
+
+export { editarUsuarios };
+export { registro_usuarios, iniciar_sesion, consultaUsuarios, consultaUsuario }

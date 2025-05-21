@@ -3,7 +3,10 @@ import {consultaPilotos, consultaPiloto, agregarPiloto, editarPiloto, eliminarPi
 import { consultaPistas, consultaPista, insertarPista, editarPista, eliminarPista } from '../controllers/pistas.controller.js';
 import { consultaMaximosGanadores, consultaMaximoGanador, agregarMaximoGanador, editarMaximoGanador, eliminarMaximoGanador } from '../controllers/maximos_ganadores.controller.js';
 import { consultaUsuarios,consultaUsuario, editarUsuarios, iniciar_sesion, registro_usuarios } from '../controllers/Usuarios.controller.js';
+import { cargarImagen, obtenerImagenes, eliminarImagen } from '../controllers/imagenes.controller.js'; 
 import authMiddleware from '../config/authMiddleware.js';
+import upload from '../config/archivosConfig.js';
+
 const router = Router();
 
 router.get("/pilotos", consultaPilotos );
@@ -29,6 +32,11 @@ router.post ("/login", iniciar_sesion);
 router.get ("/usuarios", consultaUsuarios);
 router.put ("/usuarios/editar/:usuario",authMiddleware, editarUsuarios);
 router.get('/usuarios/:usuario', authMiddleware, consultaUsuario);
+
+//imagenes
+router.post("/imagen",upload.single('image'), cargarImagen);
+router.get("/imagenes", obtenerImagenes);
+router.delete("/imagen/:id", eliminarImagen); 
 
 
 router.use((recibido, respuesta)=>{

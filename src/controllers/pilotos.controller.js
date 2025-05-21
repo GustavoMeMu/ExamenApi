@@ -40,8 +40,6 @@ const agregarPiloto = async (recibido, respuesta) => {
         respuesta.status(500).json({ "Error": error.message });
     }
 };
-
-
 const eliminarPiloto = async (recibido, respuesta) => {
     try {
         if (recibido.user) return respuesta.status(500).json({"msj":"no tienes permisos para efectuar esta accion"})

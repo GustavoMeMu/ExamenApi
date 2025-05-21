@@ -7,7 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 Conexion();
+app.use("/imagenes", express.static("uploads"));
 app.use("/",router);
+
 
 const PUERTO = process.env.PORT || 3000;
 

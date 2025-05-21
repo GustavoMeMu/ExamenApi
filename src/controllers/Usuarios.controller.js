@@ -27,18 +27,42 @@ const iniciar_sesion = async (recibido, respuesta) => {
     try {
         const { usuario, password } = recibido.body;
         const consultaUsuario = await Usuarios.findOne({ "usuario": usuario });
-        if (!consultaUsuario) return respuesta.status(500).json({ "msj": `El usuario ${usuario} no esta registrado!` });
+
+        if (!consultaUsuario) {
+            // Se usa 404 Not Found porque el usuario no se encontró.
+            return respuesta.status(404).json({ "msj": `El usuario ${usuario} no está registrado!` });
+        }
+
         let comparacion = await bcrypt.compare(password, consultaUsuario.password);
-        if (!comparacion) return respuesta.status(500).json({ "msj": "Credenciales de acceso no validas!" })
+        if (!comparacion) {
+            // Se usa 401 Unauthorized para credenciales inválidas.
+            return respuesta.status(401).json({ "msj": "Credenciales de acceso no válidas!" });
+        }
+
+        // --- Lógica para cambiar el rol de "Inactivo" a "Activo" ---
+        if (consultaUsuario.rol === "Inactivo") {
+            consultaUsuario.rol = "Activo";
+            await consultaUsuario.save(); 
+        }
+      
 
         const token = jwt.sign({
             id: consultaUsuario._id,
-            rol: consultaUsuario.rol
+            rol: consultaUsuario.rol // El rol ya estará actualizado si se cambió
         }, process.env.JWT_SECRET, { "expiresIn": "1hr" });
 
-        respuesta.status(201).json({ "msj": "Iniciando Sesion exitos!","token":token, "usuario":usuario});
+        // Se usa 200 OK para un inicio de sesión exitoso.
+        respuesta.status(200).json({
+            "msj": "¡Inicio de sesión exitoso!",
+            "token": token,
+            "usuario": usuario,
+            "estado": consultaUsuario.estado,
+            "rol": consultaUsuario.rol // Se envía el rol ya actualizado
+        });
     } catch (error) {
-        respuesta.status(500).json({ "msj": error.msj })
+        // Mejor manejo de errores para mostrar el mensaje correcto del error
+        console.error("Error en iniciar_sesion:", error);
+        respuesta.status(500).json({ "msj": "Error interno del servidor al intentar iniciar sesión." });
     }
 }
 const consultaUsuarios = async (recibido, respuesta) => {
@@ -90,6 +114,5 @@ const editarUsuarios = async (recibido, respuesta) => {
     }
 };
 
-
 export { editarUsuarios };
-export { registro_usuarios, iniciar_sesion, consultaUsuarios, consultaUsuario }
+export { registro_usuarios, iniciar_sesion, consultaUsuarios, consultaUsuario };

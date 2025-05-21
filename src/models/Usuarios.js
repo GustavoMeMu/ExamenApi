@@ -5,7 +5,7 @@ const UsuariosModelo = new mongoose.Schema({
     password: { type: String, required: true },               
     rol: {
         type: String,
-        enum: ["Activo", "Inactivo"],
+        enum: ["Activo", "Inactivo","Inhabilitado"],
         default: "Inactivo",
         required: true
       },                  

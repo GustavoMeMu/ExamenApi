@@ -35,7 +35,7 @@ router.get('/usuarios/:usuario', authMiddleware, consultaUsuario);
 
 //imagenes
 router.post("/imagen",upload.single('image'), cargarImagen);
-router.get("/imagenes", obtenerImagenes);
+router.get("/imagenes", authMiddleware,obtenerImagenes);
 router.delete("/imagen/:id", eliminarImagen); 
 
 

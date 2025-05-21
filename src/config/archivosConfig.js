@@ -34,7 +34,7 @@ const fileFilter = (recibido, file, cb) => {
 const limits = { fileSize: 3 * 1024 * 1024 };
 
 // creamos una constante upload, esta contendrá las características definidas de multer
-const upload = multer({ storage });
+const upload = multer({ storage,fileFilter,limits });
 
 // exportación
 export default upload;

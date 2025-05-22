@@ -6,7 +6,6 @@ const registro_usuarios = async (recibido, respuesta) => {
     try {
         const { usuario, password, rol, estado } = recibido.body;
 
-        // Validación simple de los campos
         if (!usuario || !password || !rol || !estado) {
             return respuesta.status(400).json({ msj: "Faltan campos obligatorios" });
         }
@@ -29,42 +28,63 @@ const iniciar_sesion = async (recibido, respuesta) => {
         const consultaUsuario = await Usuarios.findOne({ "usuario": usuario });
 
         if (!consultaUsuario) {
-            // Se usa 404 Not Found porque el usuario no se encontró.
             return respuesta.status(404).json({ "msj": `El usuario ${usuario} no está registrado!` });
         }
 
         let comparacion = await bcrypt.compare(password, consultaUsuario.password);
         if (!comparacion) {
-            // Se usa 401 Unauthorized para credenciales inválidas.
             return respuesta.status(401).json({ "msj": "Credenciales de acceso no válidas!" });
         }
 
-        // --- Lógica para cambiar el rol de "Inactivo" a "Activo" ---
         if (consultaUsuario.rol === "Inactivo") {
             consultaUsuario.rol = "Activo";
-            await consultaUsuario.save(); 
+            await consultaUsuario.save();
         }
-      
+
 
         const token = jwt.sign({
             id: consultaUsuario._id,
-            rol: consultaUsuario.rol // El rol ya estará actualizado si se cambió
+            rol: consultaUsuario.rol 
         }, process.env.JWT_SECRET, { "expiresIn": "1hr" });
 
-        // Se usa 200 OK para un inicio de sesión exitoso.
         respuesta.status(200).json({
             "msj": "¡Inicio de sesión exitoso!",
             "token": token,
             "usuario": usuario,
             "estado": consultaUsuario.estado,
-            "rol": consultaUsuario.rol // Se envía el rol ya actualizado
+            "rol": consultaUsuario.rol 
         });
     } catch (error) {
-        // Mejor manejo de errores para mostrar el mensaje correcto del error
         console.error("Error en iniciar_sesion:", error);
         respuesta.status(500).json({ "msj": "Error interno del servidor al intentar iniciar sesión." });
     }
 }
+
+const cerrar_sesion = async (req, res) => {
+    try {
+        const { usuario } = req.body; 
+
+        if (!usuario) {
+            return res.status(400).json({ msj: "Nombre de usuario requerido para cerrar sesión." });
+        }
+
+        const consultaUsuario = await Usuarios.findOne({ usuario: usuario });
+
+        if (!consultaUsuario) {
+            return res.status(404).json({ msj: `El usuario ${usuario} no fue encontrado.` });
+        }
+
+        consultaUsuario.rol = "Inactivo";
+        await consultaUsuario.save();
+
+        res.status(200).json({ msj: `Sesión de ${usuario} cerrada exitosamente y rol actualizado a Inactivo.` });
+
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        res.status(500).json({ msj: "Error interno del servidor al intentar cerrar sesión." });
+    }
+};
+
 const consultaUsuarios = async (recibido, respuesta) => {
     try {
         const usuarioss = await Usuarios.find();
@@ -115,4 +135,4 @@ const editarUsuarios = async (recibido, respuesta) => {
 };
 
 export { editarUsuarios };
-export { registro_usuarios, iniciar_sesion, consultaUsuarios, consultaUsuario };
+export { registro_usuarios, iniciar_sesion, cerrar_sesion, consultaUsuarios, consultaUsuario }; 

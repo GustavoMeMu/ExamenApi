@@ -32,12 +32,12 @@ router.post("/login", iniciar_sesion);
 router.post("/logout", cerrar_sesion);
 // aqui van las rutas de las imagenes
 router.get("/usuarios", consultaUsuarios);
-router.put("/usuarios/editar/:usuario", authMiddleware, editarUsuarios);
-router.get('/usuarios/:usuario', authMiddleware, consultaUsuario);
+router.put("/usuarios/editar/:usuario", editarUsuarios);
+router.get('/usuarios/:usuario',  consultaUsuario);
 
 //imagenes
 router.post("/imagen", upload.single('image'), cargarImagen);
-router.get("/imagenes", authMiddleware, obtenerImagenes);
+router.get("/imagenes", obtenerImagenes);
 router.delete("/imagen/:id", eliminarImagen);
 
 

@@ -54,7 +54,7 @@ const cargarImagen = async (recibido, respuesta) => {
       
       fs.unlink(recibido.file.path)
         .then(() => console.log("Archivo físico eliminado después de fallo en DB."))
-        .catch((err) => console.error("Error al eliminar el archivo físico después de un fallo en la DB:", err));
+        .catch((err) => console.error("Error al eliminar el archivo físico después de un fallo en la DB:", error));
     }
 
     respuesta.status(500).json({
